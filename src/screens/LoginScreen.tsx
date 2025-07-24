@@ -19,11 +19,11 @@ export default function LoginScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* Decorative Circles */}
+     
       <View style={styles.circleTopLeft} />
       <View style={styles.circleBottomRight} />
 
-      {/* Main Content */}
+      
       <View style={styles.content}>
         <Text style={styles.title}>HappnHub</Text>
 
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
   content: {
     width: '85%',
     alignItems: 'center',
-    zIndex: 2, // ensures content stays on top of circles
+    zIndex: 2, 
   },
   title: {
     fontSize: 38,
@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textDecorationLine: 'underline',
   },
-  // Decorative shapes
+ 
   circleTopLeft: {
     position: 'absolute',
     top: -50,

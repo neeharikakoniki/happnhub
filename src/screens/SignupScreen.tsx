@@ -10,17 +10,17 @@ export default function SignupScreen({ route, navigation }: Props) {
   const [password, setPassword] = useState('');
 
   const handleSignup = () => {
-    // For now, just navigate to Home
+    
     navigation.replace('Home', { role });
   };
 
   return (
     <View style={styles.container}>
-      {/* Decorative Circles */}
+     
       <View style={styles.circleTopLeft} />
       <View style={styles.circleBottomRight} />
 
-      {/* Main Content */}
+     
       <View style={styles.content}>
         <Text style={styles.title}>HappnHub</Text>
         <Text style={styles.subtitle}>Sign up as {role}</Text>

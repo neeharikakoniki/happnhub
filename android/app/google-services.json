@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "785749160318",
+    "project_id": "happnhub-49a90",
+    "storage_bucket": "happnhub-49a90.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:785749160318:android:4dc920bb2a5a9e48cb432f",
+        "android_client_info": {
+          "package_name": "com.happnhub"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCInkYsm_DnsQTuJgwAA4XlmkLSe2UBwOk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
