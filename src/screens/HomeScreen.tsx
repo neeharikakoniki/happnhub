@@ -12,7 +12,9 @@ import Geolocation from '@react-native-community/geolocation';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 
-function HomeScreen({ route, navigation }: Props): React.JSX.Element {
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
+
+export default function HomeScreen({ route, navigation }: Props) {
   const { role } = route.params;
 
   const [showMap, setShowMap] = useState(false);
@@ -94,21 +96,29 @@ function HomeScreen({ route, navigation }: Props): React.JSX.Element {
           <Text style={styles.welcome}>
             Welcome {role === 'admin' ? 'Admin' : 'User'}!
           </Text>
+
           <TouchableOpacity style={styles.button} onPress={handleLogout}>
             <Text style={styles.buttonText}>Logout</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => setShowMap(true)}>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => setShowMap(true)}
+          >
             <Text style={styles.buttonText}>Show Maps</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => navigation.navigate('EventList')}
+          >
+            <Text style={styles.buttonText}>View Events</Text>
           </TouchableOpacity>
         </View>
       )}
     </View>
   );
 }
-
-export default HomeScreen;
-
-type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const styles = StyleSheet.create({
   rootContainer: {
@@ -131,6 +141,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 25,
     borderRadius: 12,
     marginVertical: 10,
+    width: '60%',
+    alignItems: 'center',
   },
   buttonText: {
     color: '#fff',
