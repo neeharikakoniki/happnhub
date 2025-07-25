@@ -11,6 +11,7 @@ export type RootStackParamList = {
   Signup: { role: 'user' | 'admin' };
   Home: { role: 'user' | 'admin' };
   EventList: undefined;
+  
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();

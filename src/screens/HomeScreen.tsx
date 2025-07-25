@@ -9,18 +9,20 @@ import {
   PermissionsAndroid,
   Platform,
 } from 'react-native';
-import MapView, { Marker, Region, PROVIDER_GOOGLE } from 'react-native-maps';
+import MapView, { Marker, Callout, Region, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import EventCard from '../components/EventCard';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-export default function HomeScreen({ route, navigation }: Props): React.JSX.Element {
+export default function HomeScreen({ route }: Props): React.JSX.Element {
   const { role } = route.params;
 
-  const [showMap, setShowMap] = useState(false);
+  const [showFullMap, setShowFullMap] = useState(false);
+  const [showAllEvents, setShowAllEvents] = useState(false);
   const [region, setRegion] = useState<Region>({
     latitude: 37.78825,
     longitude: -122.4324,
@@ -28,7 +30,31 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
     longitudeDelta: 0.05,
   });
 
-  // Dummy events preview
+  // 👉 now include categories for each event
+  const nearbyEvents = [
+    {
+      id: '1',
+      name: 'Trap House Brunch',
+      latitude: 33.754472,
+      longitude: -84.37248299999999,
+      category: 'party',
+    },
+    {
+      id: '2',
+      name: 'Art Expo',
+      latitude: 33.7555,
+      longitude: -84.37,
+      category: 'art',
+    },
+    {
+      id: '3',
+      name: 'Music Night',
+      latitude: 33.7565,
+      longitude: -84.374,
+      category: 'music',
+    },
+  ];
+
   const dummyEvents = [
     {
       id: '1',
@@ -40,6 +66,7 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
       latitude: 33.754472,
       longitude: -84.37248299999999,
       address: '464 Edgewood Avenue Southeast, Atlanta, GA 30312',
+      category: 'party',
     },
     {
       id: '2',
@@ -51,14 +78,25 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
       latitude: 33.75,
       longitude: -84.39,
       address: 'Downtown Atlanta, GA',
+      category: 'art',
+    },
+    {
+      id: '3',
+      name: 'Music Night',
+      summary: 'Live performances & fun!',
+      startDate: '2025-08-02',
+      startTime: '18:00',
+      endTime: '22:00',
+      latitude: 33.7565,
+      longitude: -84.374,
+      address: 'Midtown Atlanta, GA',
+      category: 'music',
     },
   ];
 
   useEffect(() => {
-    if (showMap) {
-      requestLocationPermission();
-    }
-  }, [showMap]);
+    requestLocationPermission();
+  }, []);
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'android') {
@@ -88,50 +126,64 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
     );
   };
 
-  const handleLogout = () => {
-    navigation.replace('Login');
+  // ✅ helper to pick icon based on category
+  const getIconName = (category: string) => {
+    const cat = category.toLowerCase();
+    if (cat.includes('music')) return 'music-note';
+    if (cat.includes('art')) return 'palette';
+    if (cat.includes('party')) return 'celebration';
+    if (cat.includes('food')) return 'restaurant';
+    return 'event'; // default
   };
 
   return (
     <View style={styles.rootContainer}>
-      {/* Decorative circles in background */}
+      {/* Decorative circles */}
       <View style={styles.circleTopLeft} />
       <View style={styles.circleBottomRight} />
 
-      {/* Logout button */}
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+      {/* Logout */}
+      <TouchableOpacity style={styles.logoutBtn} onPress={() => {}}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
-      {showMap ? (
+      {showFullMap ? (
         <>
           <MapView
             provider={PROVIDER_GOOGLE}
-            style={styles.map}
+            style={styles.fullMap}
             region={region}
             showsUserLocation={true}
             showsMyLocationButton={true}
           >
-            <Marker
-              coordinate={{
-                latitude: region.latitude,
-                longitude: region.longitude,
-              }}
-              title="You are here"
-              description="Your live location"
-            />
+            {/* User marker */}
+            <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }}>
+              <Icon name="person-pin-circle" size={40} color="#1976D2" />
+            </Marker>
+
+            {/* Event markers with category-based icons */}
+            {nearbyEvents.map((evt) => (
+              <Marker
+                key={evt.id}
+                coordinate={{ latitude: evt.latitude, longitude: evt.longitude }}
+              >
+                <Icon name={getIconName(evt.category)} size={36} color="black" />
+                <Callout>
+                  <Text>{evt.name}</Text>
+                </Callout>
+              </Marker>
+            ))}
           </MapView>
 
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => setShowMap(false)}
+            onPress={() => setShowFullMap(false)}
           >
             <Text style={styles.buttonText}>Back</Text>
           </TouchableOpacity>
         </>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Profile Header */}
           <View style={styles.header}>
             <Text style={styles.greeting}>👋 Welcome!</Text>
             <Text style={styles.userRole}>
@@ -139,30 +191,40 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
             </Text>
           </View>
 
-          {/* Quick Action Buttons */}
-          <View style={styles.quickActions}>
-            <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: '#4CAF50' }]}
-              onPress={() => setShowMap(true)}
+          {/* Mini Map Preview */}
+          <TouchableOpacity onPress={() => setShowFullMap(true)}>
+            <MapView
+              provider={PROVIDER_GOOGLE}
+              style={styles.miniMap}
+              region={region}
+              pointerEvents="none"
             >
-              <Text style={styles.actionText}>🗺 Show Map</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.actionBtn, { backgroundColor: '#2196F3' }]}
-              onPress={() => navigation.navigate('EventList')}
-            >
-              <Text style={styles.actionText}>📋 View Events</Text>
-            </TouchableOpacity>
-          </View>
+              <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }}>
+                <Icon name="person-pin-circle" size={30} color="#1976D2" />
+              </Marker>
+            </MapView>
+          </TouchableOpacity>
 
-          {/* Preview of events */}
+          {/* View All Events Button */}
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => setShowAllEvents((prev) => !prev)}
+          >
+            <Text style={styles.viewAllText}>
+              {showAllEvents ? 'Hide Events' : 'View All Events'}
+            </Text>
+          </TouchableOpacity>
+
+          {/* Nearby Events Section */}
           <Text style={styles.sectionTitle}>⭐ Nearby Events</Text>
-          <FlatList
-            data={dummyEvents}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => <EventCard event={item} />}
-            scrollEnabled={false}
-          />
+          {showAllEvents && (
+            <FlatList
+              data={dummyEvents}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => <EventCard event={item} />}
+              scrollEnabled={false}
+            />
+          )}
         </ScrollView>
       )}
     </View>
@@ -174,7 +236,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FF6B6B',
   },
-  // Decorative circles
   circleTopLeft: {
     position: 'absolute',
     top: -50,
@@ -183,7 +244,6 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 100,
     backgroundColor: 'rgba(255,255,255,0.15)',
-    zIndex: 0,
   },
   circleBottomRight: {
     position: 'absolute',
@@ -193,7 +253,6 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 125,
     backgroundColor: 'rgba(255,255,255,0.2)',
-    zIndex: 0,
   },
   logoutBtn: {
     position: 'absolute',
@@ -208,13 +267,11 @@ const styles = StyleSheet.create({
   logoutText: {
     color: '#FF6B6B',
     fontWeight: '700',
-    fontSize: 14,
   },
   scrollContent: {
     paddingTop: 100,
     paddingHorizontal: 16,
     paddingBottom: 30,
-    zIndex: 2,
   },
   header: {
     marginBottom: 20,
@@ -229,36 +286,18 @@ const styles = StyleSheet.create({
     color: '#fff',
     marginTop: 4,
   },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  miniMap: {
+    height: 150,
+    borderRadius: 12,
+    overflow: 'hidden',
     marginBottom: 20,
   },
-  actionBtn: {
-    flex: 1,
-    paddingVertical: 16,
-    borderRadius: 12,
-    marginHorizontal: 5,
-    alignItems: 'center',
-  },
-  actionText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  sectionTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#fff',
-    marginBottom: 10,
-    marginTop: 10,
-  },
-  map: {
+  fullMap: {
     ...StyleSheet.absoluteFillObject,
   },
   backButton: {
     position: 'absolute',
-    top: 100,
+    top: 50,
     right: 20,
     backgroundColor: '#FF6B6B',
     paddingVertical: 10,
@@ -268,8 +307,27 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontSize: 16,
     fontWeight: '600',
   },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  viewAllButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 8,
+    marginBottom: 20,
+    alignSelf: 'flex-start',
+  },
+  viewAllText: {
+    color: '#FF6B6B',
+    fontWeight: '700',
+  },
 });
+
 
