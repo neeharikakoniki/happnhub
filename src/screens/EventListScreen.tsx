@@ -9,8 +9,8 @@ export default function EventListScreen() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [city, setCity] = useState<string>('smyrna'); // Default city if location fails
-  const [state, setState] = useState<string>('ga'); // Default state
+  const [city, setCity] = useState<string>('smyrna'); 
+  const [state, setState] = useState<string>('ga'); 
 
   useEffect(() => {
     requestLocationPermission();
@@ -46,9 +46,7 @@ export default function EventListScreen() {
   const getUserLocation = () => {
     Geolocation.getCurrentPosition(
       (position) => {
-        // In a real app you’d reverse geocode lat/lng to get city/state
-        // For demo, you can hardcode or use an API like Google Maps Geocoding API
-        // Here, just use default city/state for simplicity
+        
         fetchEventsForLocation(city, state);
       },
       (error) => {
