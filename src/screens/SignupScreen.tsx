@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import AuthBackground from '../components/AuthBackground';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
 export default function SignupScreen({ route, navigation }: Props) {
@@ -10,17 +12,11 @@ export default function SignupScreen({ route, navigation }: Props) {
   const [password, setPassword] = useState('');
 
   const handleSignup = () => {
-    
     navigation.replace('Home', { role });
   };
 
   return (
-    <View style={styles.container}>
-     
-      <View style={styles.circleTopLeft} />
-      <View style={styles.circleBottomRight} />
-
-     
+    <AuthBackground>
       <View style={styles.content}>
         <Text style={styles.title}>HappnHub</Text>
         <Text style={styles.subtitle}>Sign up as {role}</Text>
@@ -49,17 +45,11 @@ export default function SignupScreen({ route, navigation }: Props) {
           <Text style={styles.linkText}>Already have an account? Log In</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </AuthBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FF6B6B',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   content: {
     width: '85%',
     alignItems: 'center',
@@ -105,25 +95,5 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#fff',
     textDecorationLine: 'underline',
-  },
-  circleTopLeft: {
-    position: 'absolute',
-    top: -50,
-    left: -50,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    zIndex: 0,
-  },
-  circleBottomRight: {
-    position: 'absolute',
-    bottom: -60,
-    right: -60,
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    zIndex: 0,
   },
 });

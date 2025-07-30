@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
+import AuthBackground from '../components/AuthBackground';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
@@ -18,24 +20,21 @@ export default function LoginScreen({ navigation }: Props) {
   };
 
   return (
-    <View style={styles.container}>
-     
-      <View style={styles.circleTopLeft} />
-      <View style={styles.circleBottomRight} />
-
-      
+    <AuthBackground>
       <View style={styles.content}>
         <Text style={styles.title}>HappnHub</Text>
 
         <View style={styles.roleSwitch}>
           <TouchableOpacity
             style={[styles.roleButton, role === 'user' && styles.roleActive]}
-            onPress={() => setRole('user')}>
+            onPress={() => setRole('user')}
+          >
             <Text style={styles.roleText}>User</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.roleButton, role === 'admin' && styles.roleActive]}
-            onPress={() => setRole('admin')}>
+            onPress={() => setRole('admin')}
+          >
             <Text style={styles.roleText}>Admin</Text>
           </TouchableOpacity>
         </View>
@@ -64,21 +63,15 @@ export default function LoginScreen({ navigation }: Props) {
           <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>
-    </View>
+    </AuthBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FF6B6B',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   content: {
     width: '85%',
     alignItems: 'center',
-    zIndex: 2, 
+    zIndex: 2,
   },
   title: {
     fontSize: 38,
@@ -134,26 +127,4 @@ const styles = StyleSheet.create({
     color: '#fff',
     textDecorationLine: 'underline',
   },
- 
-  circleTopLeft: {
-    position: 'absolute',
-    top: -50,
-    left: -50,
-    width: 200,
-    height: 200,
-    borderRadius: 100,
-    backgroundColor: 'rgba(255,255,255,0.15)',
-    zIndex: 0,
-  },
-  circleBottomRight: {
-    position: 'absolute',
-    bottom: -60,
-    right: -60,
-    width: 250,
-    height: 250,
-    borderRadius: 125,
-    backgroundColor: 'rgba(255,255,255,0.2)',
-    zIndex: 0,
-  },
 });
-

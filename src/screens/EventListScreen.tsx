@@ -1,115 +1,62 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, ActivityIndicator, StyleSheet, PermissionsAndroid, Platform } from 'react-native';
-import Geolocation from '@react-native-community/geolocation';
-import EventCard from '../components/EventCard';
+import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../navigation/AppNavigator';
 import { fetchEvents } from '../api/eventsApi';
-import { EventItem } from '../api/eventsApi';
+import { EventItem } from '../types/EventItem';
+import EventCard from '../components/EventCard';
 
-export default function EventListScreen() {
+type Props = NativeStackScreenProps<RootStackParamList, 'EventList'>;
+
+export default function EventListScreen({ navigation, route }: Props) {
+  const { role } = route.params;
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [city, setCity] = useState<string>('smyrna'); 
-  const [state, setState] = useState<string>('ga'); 
 
   useEffect(() => {
-    requestLocationPermission();
+    const load = async () => {
+      const data = await fetchEvents('Atlanta', 'GA');
+      setEvents(data);
+      setLoading(false);
+    };
+    load();
   }, []);
 
-  const requestLocationPermission = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const granted = await PermissionsAndroid.request(
-          PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-          {
-            title: 'HappnHub Location Permission',
-            message: 'HappnHub needs access to your location to show nearby events.',
-            buttonNeutral: 'Ask Me Later',
-            buttonNegative: 'Cancel',
-            buttonPositive: 'OK',
-          }
-        );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          getUserLocation();
-        } else {
-          fetchEventsForLocation(city, state);
-        }
-      } catch (err) {
-        console.warn(err);
-        fetchEventsForLocation(city, state);
-      }
-    } else {
-      getUserLocation();
-    }
+  const handleEventPress = (event: EventItem) => {
+    navigation.navigate('EventDetail', { event });
   };
-
-  const getUserLocation = () => {
-    Geolocation.getCurrentPosition(
-      (position) => {
-        
-        fetchEventsForLocation(city, state);
-      },
-      (error) => {
-        console.warn(error);
-        fetchEventsForLocation(city, state);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-    );
-  };
-
-  const fetchEventsForLocation = async (cityName: string, stateCode: string) => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await fetchEvents(cityName, stateCode);
-      setEvents(data);
-    } catch (err) {
-      setError('Failed to load events');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const renderItem = ({ item }: { item: EventItem }) => <EventCard event={item} />;
 
   return (
     <View style={styles.container}>
-      {loading && <ActivityIndicator size="large" color="#FF6B6B" />}
-      {error && <Text style={styles.errorText}>{error}</Text>}
-      {!loading && !error && (
-        <>
-          {events.length === 0 ? (
-            <Text style={styles.noEvents}>No events found nearby.</Text>
-          ) : (
-            <FlatList
-              data={events}
-              keyExtractor={(item) => item.id}
-              renderItem={renderItem}
-              contentContainerStyle={styles.listContent}
-              showsVerticalScrollIndicator={false}
-            />
+      <Text style={styles.title}>All Events ({role})</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color="#FF6B6B" />
+      ) : (
+        <FlatList
+          data={events}
+          keyExtractor={(item) => item.id}
+          renderItem={({ item }) => (
+            <TouchableOpacity onPress={() => handleEventPress(item)}>
+              <EventCard event={item} />
+            </TouchableOpacity>
           )}
-        </>
+        />
       )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#fff' },
-  errorText: {
-    textAlign: 'center',
-    color: 'red',
-    marginTop: 20,
-    fontSize: 16,
+  container: {
+    flex: 1,
+    backgroundColor: '#FF6B6B',
+    paddingHorizontal: 16,
+    paddingTop: 60,
   },
-  noEvents: {
-    textAlign: 'center',
-    marginTop: 30,
-    fontSize: 18,
-    color: '#666',
-  },
-  listContent: {
-    paddingVertical: 10,
+  title: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 16,
   },
 });

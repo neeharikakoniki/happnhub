@@ -8,21 +8,23 @@ import {
   FlatList,
   PermissionsAndroid,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import MapView, { Marker, Callout, Region, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
 import { RootStackParamList } from '../navigation/AppNavigator';
 import EventCard from '../components/EventCard';
-import Icon from 'react-native-vector-icons/MaterialIcons';
+import { fetchEvents } from '../api/eventsApi';
+import { EventItem } from '../types/EventItem';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-export default function HomeScreen({ route }: Props): React.JSX.Element {
+export default function HomeScreen({ route, navigation }: Props): React.JSX.Element {
   const { role } = route.params;
 
-  const [showFullMap, setShowFullMap] = useState(false);
-  const [showAllEvents, setShowAllEvents] = useState(false);
   const [region, setRegion] = useState<Region>({
     latitude: 37.78825,
     longitude: -122.4324,
@@ -30,72 +32,13 @@ export default function HomeScreen({ route }: Props): React.JSX.Element {
     longitudeDelta: 0.05,
   });
 
-  // 👉 now include categories for each event
-  const nearbyEvents = [
-    {
-      id: '1',
-      name: 'Trap House Brunch',
-      latitude: 33.754472,
-      longitude: -84.37248299999999,
-      category: 'party',
-    },
-    {
-      id: '2',
-      name: 'Art Expo',
-      latitude: 33.7555,
-      longitude: -84.37,
-      category: 'art',
-    },
-    {
-      id: '3',
-      name: 'Music Night',
-      latitude: 33.7565,
-      longitude: -84.374,
-      category: 'music',
-    },
-  ];
-
-  const dummyEvents = [
-    {
-      id: '1',
-      name: 'Trap House Brunch',
-      summary: 'ATLANTA\'S #1 SATURDAY DAY PARTY',
-      startDate: '2025-07-26',
-      startTime: '15:00',
-      endTime: '21:00',
-      latitude: 33.754472,
-      longitude: -84.37248299999999,
-      address: '464 Edgewood Avenue Southeast, Atlanta, GA 30312',
-      category: 'party',
-    },
-    {
-      id: '2',
-      name: 'Art Expo 2025',
-      summary: 'Experience the best local art in town!',
-      startDate: '2025-07-28',
-      startTime: '11:00',
-      endTime: '18:00',
-      latitude: 33.75,
-      longitude: -84.39,
-      address: 'Downtown Atlanta, GA',
-      category: 'art',
-    },
-    {
-      id: '3',
-      name: 'Music Night',
-      summary: 'Live performances & fun!',
-      startDate: '2025-08-02',
-      startTime: '18:00',
-      endTime: '22:00',
-      latitude: 33.7565,
-      longitude: -84.374,
-      address: 'Midtown Atlanta, GA',
-      category: 'music',
-    },
-  ];
+  const [events, setEvents] = useState<EventItem[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [showFullMap, setShowFullMap] = useState(false);
 
   useEffect(() => {
     requestLocationPermission();
+    loadEvents();
   }, []);
 
   const requestLocationPermission = async () => {
@@ -126,24 +69,31 @@ export default function HomeScreen({ route }: Props): React.JSX.Element {
     );
   };
 
-  // ✅ helper to pick icon based on category
-  const getIconName = (category: string) => {
-    const cat = category.toLowerCase();
+  const loadEvents = async () => {
+    setLoadingEvents(true);
+    const data = await fetchEvents('Atlanta', 'GA');
+    setEvents(data);
+    setLoadingEvents(false);
+  };
+
+
+  const getIconName = (category?: string) => {
+    const cat = category?.toLowerCase() ?? '';
     if (cat.includes('music')) return 'music-note';
     if (cat.includes('art')) return 'palette';
     if (cat.includes('party')) return 'celebration';
     if (cat.includes('food')) return 'restaurant';
-    return 'event'; // default
+    return 'event';
   };
 
   return (
     <View style={styles.rootContainer}>
-      {/* Decorative circles */}
+  
       <View style={styles.circleTopLeft} />
       <View style={styles.circleBottomRight} />
 
-      {/* Logout */}
-      <TouchableOpacity style={styles.logoutBtn} onPress={() => {}}>
+     
+      <TouchableOpacity style={styles.logoutBtn} onPress={() => { }}>
         <Text style={styles.logoutText}>Logout</Text>
       </TouchableOpacity>
 
@@ -153,45 +103,48 @@ export default function HomeScreen({ route }: Props): React.JSX.Element {
             provider={PROVIDER_GOOGLE}
             style={styles.fullMap}
             region={region}
-            showsUserLocation={true}
-            showsMyLocationButton={true}
+            showsUserLocation
+            showsMyLocationButton
           >
-            {/* User marker */}
+          
             <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }}>
               <Icon name="person-pin-circle" size={40} color="#1976D2" />
             </Marker>
 
-            {/* Event markers with category-based icons */}
-            {nearbyEvents.map((evt) => (
+            
+            {events.map((event) => (
               <Marker
-                key={evt.id}
-                coordinate={{ latitude: evt.latitude, longitude: evt.longitude }}
+                key={event.id}
+                coordinate={{ latitude: event.latitude, longitude: event.longitude }}
               >
-                <Icon name={getIconName(evt.category)} size={36} color="black" />
+                <Icon name={getIconName(event.category)} size={36} color="black" />
                 <Callout>
-                  <Text>{evt.name}</Text>
+                  <Text>{event.name}</Text>
                 </Callout>
               </Marker>
             ))}
           </MapView>
 
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => setShowFullMap(false)}
-          >
+          <TouchableOpacity style={styles.backButton} onPress={() => setShowFullMap(false)}>
             <Text style={styles.buttonText}>Back</Text>
           </TouchableOpacity>
         </>
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Text style={styles.greeting}>👋 Welcome!</Text>
-            <Text style={styles.userRole}>
-              You are logged in as {role === 'admin' ? 'Admin' : 'User'}
-            </Text>
+            <Text style={styles.greeting}>Welcome!</Text>
+            <Text style={styles.userRole}>You are logged in as {role}</Text>
           </View>
 
-          {/* Mini Map Preview */}
+         
+          <TouchableOpacity
+            style={styles.favoritesButton}
+            onPress={() => navigation.navigate('Favorites')}
+          >
+            <Text style={styles.favoritesText}>Your Favorites</Text>
+          </TouchableOpacity>
+
+       
           <TouchableOpacity onPress={() => setShowFullMap(true)}>
             <MapView
               provider={PROVIDER_GOOGLE}
@@ -205,26 +158,24 @@ export default function HomeScreen({ route }: Props): React.JSX.Element {
             </MapView>
           </TouchableOpacity>
 
-          {/* View All Events Button */}
-          <TouchableOpacity
-            style={styles.viewAllButton}
-            onPress={() => setShowAllEvents((prev) => !prev)}
-          >
-            <Text style={styles.viewAllText}>
-              {showAllEvents ? 'Hide Events' : 'View All Events'}
-            </Text>
-          </TouchableOpacity>
-
-          {/* Nearby Events Section */}
-          <Text style={styles.sectionTitle}>⭐ Nearby Events</Text>
-          {showAllEvents && (
+          <Text style={styles.sectionTitle}>Nearby Events</Text>
+          {loadingEvents ? (
+            <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />
+          ) : (
             <FlatList
-              data={dummyEvents}
+              data={events.slice(0, 2)} 
               keyExtractor={(item) => item.id}
               renderItem={({ item }) => <EventCard event={item} />}
               scrollEnabled={false}
             />
           )}
+
+          <TouchableOpacity
+            style={styles.viewAllButton}
+            onPress={() => navigation.navigate('EventList', { role })}
+          >
+            <Text style={styles.viewAllText}>View All Events</Text>
+          </TouchableOpacity>
         </ScrollView>
       )}
     </View>
@@ -244,6 +195,7 @@ const styles = StyleSheet.create({
     height: 200,
     borderRadius: 100,
     backgroundColor: 'rgba(255,255,255,0.15)',
+    zIndex: 0,
   },
   circleBottomRight: {
     position: 'absolute',
@@ -253,25 +205,21 @@ const styles = StyleSheet.create({
     height: 250,
     borderRadius: 125,
     backgroundColor: 'rgba(255,255,255,0.2)',
+    zIndex: 0,
   },
   logoutBtn: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    backgroundColor: '#fff',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    zIndex: 10,
+    marginTop: 50,
+    alignSelf: 'flex-end',
+    paddingRight: 20,
   },
   logoutText: {
-    color: '#FF6B6B',
-    fontWeight: '700',
+    color: '#fff',
+    fontSize: 16,
+    textDecorationLine: 'underline',
   },
   scrollContent: {
-    paddingTop: 100,
-    paddingHorizontal: 16,
-    paddingBottom: 30,
+    padding: 20,
+    paddingBottom: 40,
   },
   header: {
     marginBottom: 20,
@@ -287,47 +235,57 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   miniMap: {
-    height: 150,
+    width: '100%',
+    height: 180,
     borderRadius: 12,
-    overflow: 'hidden',
     marginBottom: 20,
   },
   fullMap: {
-    ...StyleSheet.absoluteFillObject,
-  },
-  backButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    backgroundColor: '#FF6B6B',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    zIndex: 999,
-  },
-  buttonText: {
-    color: '#fff',
-    fontWeight: '600',
+    flex: 1,
   },
   sectionTitle: {
     fontSize: 20,
-    fontWeight: '700',
+    fontWeight: '600',
     color: '#fff',
-    marginTop: 20,
     marginBottom: 10,
   },
   viewAllButton: {
+    marginTop: 20,
     backgroundColor: '#fff',
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    borderRadius: 8,
-    marginBottom: 20,
-    alignSelf: 'flex-start',
+    paddingVertical: 12,
+    borderRadius: 10,
+    alignItems: 'center',
   },
   viewAllText: {
     color: '#FF6B6B',
     fontWeight: '700',
+    fontSize: 16,
+  },
+  backButton: {
+    position: 'absolute',
+    bottom: 40,
+    alignSelf: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+  },
+  favoritesButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 10,
+    alignSelf: 'flex-start',
+    marginBottom: 16,
+  },
+  favoritesText: {
+    color: '#FF6B6B',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  buttonText: {
+    color: '#FF6B6B',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
-
-
