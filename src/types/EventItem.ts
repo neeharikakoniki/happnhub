@@ -9,4 +9,6 @@ export interface EventItem {
   longitude: number;
   address: string;
   category?: string; 
+  isRSVPed?: boolean;
+  isFavorited?: boolean;
 }

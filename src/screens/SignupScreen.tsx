@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import AuthBackground from '../components/AuthBackground';
+import { signUpWithEmail } from '../services/auth/emailAuth';
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Signup'>;
 
@@ -11,9 +13,15 @@ export default function SignupScreen({ route, navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleSignup = () => {
+const handleSignup = async () => {
+  try {
+    const user = await signUpWithEmail(email, password, role);
     navigation.replace('Home', { role });
-  };
+  } catch (error: any) {
+    console.error('Signup Error:', error);
+    Alert.alert('Signup Failed', error.message);
+  }
+};
 
   return (
     <AuthBackground>

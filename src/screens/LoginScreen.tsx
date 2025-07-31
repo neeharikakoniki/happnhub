@@ -1,8 +1,19 @@
+// src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Alert,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import AuthBackground from '../components/AuthBackground';
+
+import { loginWithEmail, getUserRole } from '../services/auth/emailAuth';
+import { signInWithGoogle } from '../services/auth/googleAuth';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -11,12 +22,30 @@ export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    navigation.navigate('Home', { role });
+  const handleLogin = async () => {
+    try {
+      const user = await loginWithEmail(email, password);
+      const userRole = await getUserRole(user.uid);
+      navigation.replace('Home', { role: userRole });
+    } catch (error: any) {
+      console.error('Login Error:', error);
+      Alert.alert('Login Failed', error.message);
+    }
   };
 
   const handleSignup = () => {
     navigation.navigate('Signup', { role });
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const user = await signInWithGoogle();
+      const role = await getUserRole(user.uid);
+      Alert.alert('Success', `Welcome ${user.displayName || user.email}`);
+      navigation.replace('Home', { role });
+    } catch (error: any) {
+      Alert.alert('Google Sign-In Failed', error.message);
+    }
   };
 
   return (
@@ -61,6 +90,14 @@ export default function LoginScreen({ navigation }: Props) {
 
         <TouchableOpacity onPress={handleSignup}>
           <Text style={styles.linkText}>Don't have an account? Sign Up</Text>
+        </TouchableOpacity>
+
+        <View style={styles.divider}>
+          <Text style={styles.dividerText}>OR</Text>
+        </View>
+
+        <TouchableOpacity style={styles.button} onPress={handleGoogleLogin}>
+          <Text style={styles.buttonText}>Sign in with Google</Text>
         </TouchableOpacity>
       </View>
     </AuthBackground>
@@ -126,5 +163,14 @@ const styles = StyleSheet.create({
     marginTop: 20,
     color: '#fff',
     textDecorationLine: 'underline',
+  },
+  divider: {
+    marginVertical: 20,
+    alignItems: 'center',
+  },
+  dividerText: {
+    color: '#fff',
+    fontSize: 14,
+    opacity: 0.6,
   },
 });
