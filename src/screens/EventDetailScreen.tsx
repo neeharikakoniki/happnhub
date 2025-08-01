@@ -1,32 +1,45 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import { useFavorites } from './FavoritesContext';
+import { rsvpToEvent, cancelRsvp, isUserRsvped } from '../services/events/rsvpService';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'EventDetail'>;
 
 export default function EventDetailScreen({ route }: Props) {
-  const { event } = route.params; 
+  const { event, role } = route.params;
   const { addFavorite, removeFavorite, favorites } = useFavorites();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [countdown, setCountdown] = useState('');
+  const [rsvped, setRsvped] = useState(false);
 
   useEffect(() => {
     setIsFavorite(favorites.some((fav) => fav.id === event.id));
   }, [favorites]);
 
   useEffect(() => {
+    const checkRSVP = async () => {
+      const status = await isUserRsvped(event.id);
+      setRsvped(status);
+    };
+    checkRSVP();
+  }, []);
+
+  useEffect(() => {
     const interval = setInterval(() => {
       updateCountdown();
     }, 1000);
-
     return () => clearInterval(interval);
   }, []);
 
   const updateCountdown = () => {
     const now = new Date();
-    const eventDate = new Date(event.startDate + 'T' + event.startTime); 
+    const eventDate = new Date(event.startDate + 'T' + event.startTime);
     const diff = eventDate.getTime() - now.getTime();
 
     if (diff <= 0) {
@@ -52,9 +65,35 @@ export default function EventDetailScreen({ route }: Props) {
     setIsFavorite(!isFavorite);
   };
 
+  const toggleRSVP = async () => {
+    try {
+      if (rsvped) {
+        await cancelRsvp(event.id);
+        Alert.alert('RSVP cancelled');
+      } else {
+        await rsvpToEvent(event.id);
+        Alert.alert('RSVP confirmed');
+      }
+      setRsvped(!rsvped);
+    } catch (error: any) {
+      Alert.alert('RSVP Error', error.message || 'Something went wrong');
+    }
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>{event.name}</Text>
+
+      {/* Admin-only View Attendees button, placed at the top */}
+      {role === 'admin' && (
+        <TouchableOpacity
+          style={styles.adminButton}
+          onPress={() => navigation.navigate('AdminAttendees', { eventId: event.id })}
+        >
+          <Text style={styles.adminButtonText}>View Attendees</Text>
+        </TouchableOpacity>
+      )}
+
       <Text style={styles.address}>{event.address}</Text>
       <Text style={styles.summary}>{event.summary}</Text>
 
@@ -82,12 +121,26 @@ export default function EventDetailScreen({ route }: Props) {
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.chatButton} onPress={() => {}}>
-        <Text style={styles.chatButtonText}>Chat with Attendees</Text>
+      <TouchableOpacity
+        style={[styles.rsvpButton, rsvped && styles.rsvpActive]}
+        onPress={toggleRSVP}
+      >
+        <Text style={styles.rsvpText}>
+          {rsvped ? 'Cancel RSVP' : 'RSVP to Event'}
+        </Text>
       </TouchableOpacity>
+
+      <TouchableOpacity
+  style={styles.chatButton}
+  onPress={() => navigation.navigate('Chat', { eventId: event.id })}
+>
+  <Text style={styles.chatButtonText}>Chat with Attendees</Text>
+</TouchableOpacity>
+
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -151,6 +204,21 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
   },
+  rsvpButton: {
+    backgroundColor: '#fff',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  rsvpActive: {
+    backgroundColor: '#FFD700',
+  },
+  rsvpText: {
+    color: '#333',
+    fontWeight: '700',
+    fontSize: 16,
+  },
   chatButton: {
     backgroundColor: '#1976D2',
     paddingVertical: 14,
@@ -162,4 +230,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
   },
+  adminButton: {
+  backgroundColor: '#fff',
+  paddingVertical: 14,
+  borderRadius: 12,
+  marginBottom: 15,
+  alignItems: 'center',
+},
+adminButtonText: {
+  color: '#1976D2',
+  fontWeight: '700',
+  fontSize: 16,
+},
+
 });

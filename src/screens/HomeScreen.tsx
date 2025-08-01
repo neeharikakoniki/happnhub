@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -14,6 +15,9 @@ import MapView, { Marker, Callout, Region, PROVIDER_GOOGLE } from 'react-native-
 import Geolocation from '@react-native-community/geolocation';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import auth from '@react-native-firebase/auth';
+import { Alert } from 'react-native';
+
 
 import { RootStackParamList } from '../navigation/AppNavigator';
 import EventCard from '../components/EventCard';
@@ -93,9 +97,30 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
       <View style={styles.circleBottomRight} />
 
      
-      <TouchableOpacity style={styles.logoutBtn} onPress={() => { }}>
-        <Text style={styles.logoutText}>Logout</Text>
-      </TouchableOpacity>
+      <TouchableOpacity
+  style={styles.logoutBtn}
+  onPress={async () => {
+    try {
+      await auth().signOut();
+      navigation.replace('Login');
+    } catch (error: any) {
+      Alert.alert('Logout Failed', error.message || 'An error occurred while logging out');
+    }
+  }}
+></TouchableOpacity>
+<TouchableOpacity
+  style={styles.logoutBtn}
+  onPress={async () => {
+    try {
+      await auth().signOut();
+      navigation.replace('Login');
+    } catch (error: any) {
+      Alert.alert('Logout Failed', error.message || 'An error occurred while logging out');
+    }
+  }}
+>
+  <Text style={styles.logoutText}>Logout</Text>
+</TouchableOpacity>
 
       {showFullMap ? (
         <>
@@ -132,7 +157,7 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
       ) : (
         <ScrollView contentContainerStyle={styles.scrollContent}>
           <View style={styles.header}>
-            <Text style={styles.greeting}>Welcome!</Text>
+            <Text style={styles.greeting}>Welcome</Text>
             <Text style={styles.userRole}>You are logged in as {role}</Text>
           </View>
 
@@ -165,7 +190,7 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
             <FlatList
               data={events.slice(0, 2)} 
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <EventCard event={item} />}
+              renderItem={({ item }) => <EventCard event={item} role={role} />}
               scrollEnabled={false}
             />
           )}
@@ -181,6 +206,7 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   rootContainer: {

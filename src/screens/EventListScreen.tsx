@@ -23,7 +23,7 @@ export default function EventListScreen({ navigation, route }: Props) {
   }, []);
 
   const handleEventPress = (event: EventItem) => {
-    navigation.navigate('EventDetail', { event });
+    navigation.navigate('EventDetail', { event , role});
   };
 
   return (
@@ -37,7 +37,7 @@ export default function EventListScreen({ navigation, route }: Props) {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleEventPress(item)}>
-              <EventCard event={item} />
+              <EventCard event={item} role={'admin'} />
             </TouchableOpacity>
           )}
         />

@@ -1,25 +1,39 @@
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
 import { EventItem } from '../api/eventsApi';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
+import { RootStackParamList } from '../navigation/AppNavigator';
+
 
 type Props = {
   event: EventItem;
+  role: 'admin' | 'user';
 };
 
-export default function EventCard({ event }: Props) {
+export default function EventCard({ event, role }: Props) {
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const handlePress = () => {
+    navigation.navigate('EventDetail', { event, role });
+  };
+
   return (
-    <View style={styles.card}>
-      <Text style={styles.title}>{event.name}</Text>
-      <Text style={styles.date}>
-        {event.startDate} | {event.startTime} - {event.endTime}
-      </Text>
-      <Text style={styles.summary} numberOfLines={2}>
-        {event.summary}
-      </Text>
-      <Text style={styles.address}>{event.address}</Text>
-    </View>
+    <TouchableOpacity onPress={handlePress}>
+      <View style={styles.card}>
+        <Text style={styles.title}>{event.name}</Text>
+        <Text style={styles.date}>
+          {event.startDate} | {event.startTime} - {event.endTime}
+        </Text>
+        <Text style={styles.summary} numberOfLines={2}>
+          {event.summary}
+        </Text>
+        <Text style={styles.address}>{event.address}</Text>
+      </View>
+    </TouchableOpacity>
   );
 }
+
 
 const styles = StyleSheet.create({
   card: {
