@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -10,24 +9,26 @@ import {
   PermissionsAndroid,
   Platform,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import MapView, { Marker, Callout, Region, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import auth from '@react-native-firebase/auth';
-import { Alert } from 'react-native';
 
-
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import EventCard from '../components/EventCard';
 import { fetchEvents } from '../api/eventsApi';
 import { EventItem } from '../types/EventItem';
 
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-export default function HomeScreen({ route, navigation }: Props): React.JSX.Element {
-  const { role } = route.params;
+export default function HomeScreen({ navigation }: Props): React.JSX.Element {
+  const role = useSelector((state: RootState) => state.auth.role);
 
   const [region, setRegion] = useState<Region>({
     latitude: 37.78825,
@@ -80,7 +81,6 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
     setLoadingEvents(false);
   };
 
-
   const getIconName = (category?: string) => {
     const cat = category?.toLowerCase() ?? '';
     if (cat.includes('music')) return 'music-note';
@@ -92,35 +92,22 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
 
   return (
     <View style={styles.rootContainer}>
-  
       <View style={styles.circleTopLeft} />
       <View style={styles.circleBottomRight} />
 
-     
       <TouchableOpacity
-  style={styles.logoutBtn}
-  onPress={async () => {
-    try {
-      await auth().signOut();
-      navigation.replace('Login');
-    } catch (error: any) {
-      Alert.alert('Logout Failed', error.message || 'An error occurred while logging out');
-    }
-  }}
-></TouchableOpacity>
-<TouchableOpacity
-  style={styles.logoutBtn}
-  onPress={async () => {
-    try {
-      await auth().signOut();
-      navigation.replace('Login');
-    } catch (error: any) {
-      Alert.alert('Logout Failed', error.message || 'An error occurred while logging out');
-    }
-  }}
->
-  <Text style={styles.logoutText}>Logout</Text>
-</TouchableOpacity>
+        style={styles.logoutBtn}
+        onPress={async () => {
+          try {
+            await auth().signOut();
+            navigation.replace('Login');
+          } catch (error: any) {
+            Alert.alert('Logout Failed', error.message || 'An error occurred while logging out');
+          }
+        }}
+      >
+        <Text style={styles.logoutText}>Logout</Text>
+      </TouchableOpacity>
 
       {showFullMap ? (
         <>
@@ -131,12 +118,10 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
             showsUserLocation
             showsMyLocationButton
           >
-          
             <Marker coordinate={{ latitude: region.latitude, longitude: region.longitude }}>
               <Icon name="person-pin-circle" size={40} color="#1976D2" />
             </Marker>
 
-            
             {events.map((event) => (
               <Marker
                 key={event.id}
@@ -161,7 +146,6 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
             <Text style={styles.userRole}>You are logged in as {role}</Text>
           </View>
 
-         
           <TouchableOpacity
             style={styles.favoritesButton}
             onPress={() => navigation.navigate('Favorites')}
@@ -169,7 +153,6 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
             <Text style={styles.favoritesText}>Your Favorites</Text>
           </TouchableOpacity>
 
-       
           <TouchableOpacity onPress={() => setShowFullMap(true)}>
             <MapView
               provider={PROVIDER_GOOGLE}
@@ -188,16 +171,16 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
             <ActivityIndicator size="large" color="#fff" style={{ marginTop: 20 }} />
           ) : (
             <FlatList
-              data={events.slice(0, 2)} 
+              data={events.slice(0, 2)}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <EventCard event={item} role={role} />}
+              renderItem={({ item }) => <EventCard event={item} role={role || 'user'} />}
               scrollEnabled={false}
             />
           )}
 
           <TouchableOpacity
             style={styles.viewAllButton}
-            onPress={() => navigation.navigate('EventList', { role })}
+            onPress={() => navigation.navigate('EventList', { role: role || 'user' })}
           >
             <Text style={styles.viewAllText}>View All Events</Text>
           </TouchableOpacity>
@@ -206,7 +189,6 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   rootContainer: {

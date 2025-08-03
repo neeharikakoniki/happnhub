@@ -1,4 +1,3 @@
-// src/screens/LoginScreen.tsx
 import React, { useState } from 'react';
 import {
   View,
@@ -15,6 +14,9 @@ import AuthBackground from '../components/AuthBackground';
 import { loginWithEmail, getUserRole } from '../services/auth/emailAuth';
 import { signInWithGoogle } from '../services/auth/googleAuth';
 
+import { useDispatch } from 'react-redux';
+import { setUser } from '../store/slices/authSlice';
+
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 export default function LoginScreen({ navigation }: Props) {
@@ -22,11 +24,15 @@ export default function LoginScreen({ navigation }: Props) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  const dispatch = useDispatch();
+
   const handleLogin = async () => {
     try {
       const user = await loginWithEmail(email, password);
       const userRole = await getUserRole(user.uid);
-      navigation.replace('Home', { role: userRole });
+
+      dispatch(setUser({ uid: user.uid, role: userRole }));
+      navigation.replace('Home', { role: userRole }); // Optional if HomeScreen uses route.params
     } catch (error: any) {
       console.error('Login Error:', error);
       Alert.alert('Login Failed', error.message);
@@ -40,9 +46,11 @@ export default function LoginScreen({ navigation }: Props) {
   const handleGoogleLogin = async () => {
     try {
       const user = await signInWithGoogle();
-      const role = await getUserRole(user.uid);
+      const userRole = await getUserRole(user.uid);
+
+      dispatch(setUser({ uid: user.uid, role: userRole }));
       Alert.alert('Success', `Welcome ${user.displayName || user.email}`);
-      navigation.replace('Home', { role });
+      navigation.replace('Home', { role: userRole }); // Optional if HomeScreen uses Redux
     } catch (error: any) {
       Alert.alert('Google Sign-In Failed', error.message);
     }
