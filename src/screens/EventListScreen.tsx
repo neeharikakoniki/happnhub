@@ -1,3 +1,4 @@
+// src/screens/EventListScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -23,7 +24,7 @@ export default function EventListScreen({ navigation, route }: Props) {
   }, []);
 
   const handleEventPress = (event: EventItem) => {
-    navigation.navigate('EventDetail', { event , role});
+    navigation.navigate('EventDetail', { event, role });
   };
 
   return (
@@ -37,7 +38,7 @@ export default function EventListScreen({ navigation, route }: Props) {
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
             <TouchableOpacity onPress={() => handleEventPress(item)}>
-              <EventCard event={item} role={'admin'} />
+              <EventCard event={item} role={role} />
             </TouchableOpacity>
           )}
         />

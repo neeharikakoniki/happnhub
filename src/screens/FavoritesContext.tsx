@@ -1,3 +1,4 @@
+// src/screens/FavoritesContext.tsx
 import React, { createContext, useState, useContext, ReactNode } from 'react';
 import { EventItem } from '../types/EventItem';
 

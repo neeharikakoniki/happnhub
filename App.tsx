@@ -2,10 +2,7 @@
 import React, { useEffect } from 'react';
 import { StatusBar } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
-import { Provider } from 'react-redux';
-
 import AppNavigator from './src/navigation/AppNavigator';
-import store from './src/store';
 
 export default function App() {
   useEffect(() => {
@@ -16,9 +13,9 @@ export default function App() {
   }, []);
 
   return (
-    <Provider store={store}>
+    <>
       <StatusBar barStyle="light-content" backgroundColor="#FF6B6B" />
       <AppNavigator />
-    </Provider>
+    </>
   );
 }

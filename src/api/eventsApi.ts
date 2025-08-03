@@ -1,3 +1,4 @@
+// src/api/eventsApi.ts
 import axios from 'axios';
 
 const API_HOST = 'eventbrite-api4.p.rapidapi.com';

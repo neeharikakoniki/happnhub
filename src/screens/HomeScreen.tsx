@@ -1,3 +1,4 @@
+// src/screens/HomeScreen.tsx
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -14,21 +15,18 @@ import {
 import MapView, { Marker, Callout, Region, PROVIDER_GOOGLE } from 'react-native-maps';
 import Geolocation from '@react-native-community/geolocation';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import auth from '@react-native-firebase/auth';
 
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
 import EventCard from '../components/EventCard';
 import { fetchEvents } from '../api/eventsApi';
 import { EventItem } from '../types/EventItem';
 
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
-export default function HomeScreen({ navigation }: Props): React.JSX.Element {
-  const role = useSelector((state: RootState) => state.auth.role);
+export default function HomeScreen({ route, navigation }: Props): React.JSX.Element {
+  const { role } = route.params;
 
   const [region, setRegion] = useState<Region>({
     latitude: 37.78825,
@@ -173,14 +171,14 @@ export default function HomeScreen({ navigation }: Props): React.JSX.Element {
             <FlatList
               data={events.slice(0, 2)}
               keyExtractor={(item) => item.id}
-              renderItem={({ item }) => <EventCard event={item} role={role || 'user'} />}
+              renderItem={({ item }) => <EventCard event={item} role={role} />}
               scrollEnabled={false}
             />
           )}
 
           <TouchableOpacity
             style={styles.viewAllButton}
-            onPress={() => navigation.navigate('EventList', { role: role || 'user' })}
+            onPress={() => navigation.navigate('EventList', { role })}
           >
             <Text style={styles.viewAllText}>View All Events</Text>
           </TouchableOpacity>

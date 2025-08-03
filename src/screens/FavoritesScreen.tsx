@@ -1,19 +1,18 @@
+// src/screens/FavoritesScreen.tsx
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '../store';
-import { EventItem } from '../types/EventItem';
-import EventCard from '../components/EventCard';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { useNavigation } from '@react-navigation/native';
+import { useFavorites } from './FavoritesContext';
+import EventCard from '../components/EventCard';
+import { useRoute } from '@react-navigation/native';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList, 'Favorites'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Favorites'>;
 
-export default function FavoritesScreen() {
-  const navigation = useNavigation<NavigationProp>();
-  const favorites = useSelector((state: RootState) => state.favorites.favorites);
-  const role = useSelector((state: RootState) => state.auth.role) || 'user';
+export default function FavoritesScreen({ navigation }: Props) {
+  const { favorites } = useFavorites();
+  const route = useRoute();
+  const { role } = route.params as { role: 'admin' | 'user' };
 
   return (
     <View style={styles.container}>
@@ -24,11 +23,9 @@ export default function FavoritesScreen() {
       ) : (
         <FlatList
           data={favorites}
-          keyExtractor={(item: EventItem) => item.id}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('EventDetail', { event: item, role })}
-            >
+            <TouchableOpacity onPress={() => navigation.navigate('EventDetail', { event: item, role })}>
               <EventCard event={item} role={role} />
             </TouchableOpacity>
           )}

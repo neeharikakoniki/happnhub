@@ -1,10 +1,19 @@
+// src/screens/ChatScreen.tsx
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, TextInput, FlatList, Text, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
+import {
+  View,
+  TextInput,
+  FlatList,
+  Text,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
 import { RouteProp, useRoute } from '@react-navigation/native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-
 
 type ChatScreenRouteProp = RouteProp<RootStackParamList, 'Chat'>;
 
@@ -84,8 +93,7 @@ export default function ChatScreen() {
   );
 }
 
-
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#f5f5f5',
@@ -147,4 +155,3 @@ export const styles = StyleSheet.create({
     color: '#000',
   },
 });
-

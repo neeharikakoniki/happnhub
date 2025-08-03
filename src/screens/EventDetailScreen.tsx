@@ -1,3 +1,4 @@
+// src/screens/EventDetailScreen.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -84,7 +85,6 @@ export default function EventDetailScreen({ route }: Props) {
     <View style={styles.container}>
       <Text style={styles.title}>{event.name}</Text>
 
-      {/* Admin-only View Attendees button, placed at the top */}
       {role === 'admin' && (
         <TouchableOpacity
           style={styles.adminButton}
@@ -131,16 +131,14 @@ export default function EventDetailScreen({ route }: Props) {
       </TouchableOpacity>
 
       <TouchableOpacity
-  style={styles.chatButton}
-  onPress={() => navigation.navigate('Chat', { eventId: event.id })}
->
-  <Text style={styles.chatButtonText}>Chat with Attendees</Text>
-</TouchableOpacity>
-
+        style={styles.chatButton}
+        onPress={() => navigation.navigate('Chat', { eventId: event.id })}
+      >
+        <Text style={styles.chatButtonText}>Chat with Attendees</Text>
+      </TouchableOpacity>
     </View>
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {
@@ -231,16 +229,15 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   adminButton: {
-  backgroundColor: '#fff',
-  paddingVertical: 14,
-  borderRadius: 12,
-  marginBottom: 15,
-  alignItems: 'center',
-},
-adminButtonText: {
-  color: '#1976D2',
-  fontWeight: '700',
-  fontSize: 16,
-},
-
+    backgroundColor: '#fff',
+    paddingVertical: 14,
+    borderRadius: 12,
+    marginBottom: 15,
+    alignItems: 'center',
+  },
+  adminButtonText: {
+    color: '#1976D2',
+    fontWeight: '700',
+    fontSize: 16,
+  },
 });

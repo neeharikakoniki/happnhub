@@ -1,10 +1,10 @@
+// src/components/EventCard.tsx
 import React from 'react';
 import { EventItem } from '../api/eventsApi';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { TouchableOpacity, View, Text, StyleSheet } from 'react-native';
 import { RootStackParamList } from '../navigation/AppNavigator';
-
 
 type Props = {
   event: EventItem;
@@ -33,7 +33,6 @@ export default function EventCard({ event, role }: Props) {
     </TouchableOpacity>
   );
 }
-
 
 const styles = StyleSheet.create({
   card: {

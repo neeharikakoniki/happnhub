@@ -1,4 +1,4 @@
-
+// src/services/auth/googleAuth.ts
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import auth from '@react-native-firebase/auth';
 import firestore from '@react-native-firebase/firestore';
