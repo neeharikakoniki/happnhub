@@ -2,6 +2,7 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { EventItem } from '../types/EventItem';
 
 import LoginScreen from '../screens/LoginScreen';
 import SignupScreen from '../screens/SignupScreen';
@@ -12,7 +13,6 @@ import FavoritesScreen from '../screens/FavoritesScreen';
 import AdminAttendeesScreen from '../screens/AdminAttendeesScreen';
 import ChatScreen from '../screens/ChatScreen';
 
-import { EventItem } from '../api/eventsApi';
 
 export type RootStackParamList = {
   Login: undefined;

@@ -11,6 +11,8 @@ export interface RawEvent {
   start_date: string;
   start_time: string;
   end_time: string;
+  event_url: string;            
+  tickets_url: string;          
   primary_venue: {
     latitude: string;
     longitude: string;
@@ -28,6 +30,8 @@ export interface EventItem {
   latitude: number;
   longitude: number;
   address: string;
+  event_url?: string;           
+  tickets_url?: string;         
 }
 
 const mapEventbriteToEvent = (raw: RawEvent): EventItem => ({
@@ -40,6 +44,8 @@ const mapEventbriteToEvent = (raw: RawEvent): EventItem => ({
   latitude: parseFloat(raw.primary_venue.latitude),
   longitude: parseFloat(raw.primary_venue.longitude),
   address: raw.primary_venue.localized_address_display,
+  event_url: raw.event_url,        
+  tickets_url: raw.tickets_url,    
 });
 
 export const fetchEvents = async (city: string, state: string): Promise<EventItem[]> => {
@@ -62,7 +68,9 @@ export const fetchEvents = async (city: string, state: string): Promise<EventIte
     const data = response.data;
 
     if (data && data.events && Array.isArray(data.events)) {
-      return data.events.map(mapEventbriteToEvent);
+      const mapped = data.events.map(mapEventbriteToEvent);
+      console.log('Mapped events:', mapped[0]); 
+      return mapped;
     }
 
     return [];

@@ -1,3 +1,4 @@
+
 export interface EventItem {
   id: string;
   name: string;
@@ -8,7 +9,9 @@ export interface EventItem {
   latitude: number;
   longitude: number;
   address: string;
-  category?: string; 
+  category?: string;
   isRSVPed?: boolean;
   isFavorited?: boolean;
+  event_url?: string;
+  tickets_url?: string;
 }

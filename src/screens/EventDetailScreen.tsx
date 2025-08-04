@@ -9,6 +9,8 @@ import { addFavorite, removeFavorite } from '../redux/slices/favoritesSlice';
 import { rsvpToEvent, cancelRsvp, isUserRsvped } from '../services/events/rsvpService';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Linking } from 'react-native'; 
+
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EventDetail'>;
 
@@ -140,6 +142,24 @@ export default function EventDetailScreen({ route }: Props) {
       >
         <Text style={styles.chatButtonText}>Chat with Attendees</Text>
       </TouchableOpacity>
+      {event.event_url && (
+  <TouchableOpacity
+    style={[styles.chatButton, { marginTop: 10 }]}
+    onPress={() => Linking.openURL(event.event_url!)}
+  >
+    <Text style={styles.chatButtonText}>Visit Event Page</Text>
+  </TouchableOpacity>
+)}
+
+{event.tickets_url && (
+  <TouchableOpacity
+    style={[styles.chatButton, { marginTop: 10, backgroundColor: '#4CAF50' }]}
+    onPress={() => Linking.openURL(event.tickets_url!)}
+  >
+    <Text style={styles.chatButtonText}>Buy Tickets</Text>
+  </TouchableOpacity>
+)}
+
     </View>
   );
 }
@@ -244,4 +264,19 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
   },
+  ticketButton: {
+  backgroundColor: '#4CAF50',
+  paddingVertical: 14,
+  borderRadius: 12,
+  alignItems: 'center',
+  marginTop: 10,
+},
+eventPageButton: {
+  backgroundColor: '#1976D2',
+  paddingVertical: 14,
+  borderRadius: 12,
+  alignItems: 'center',
+  marginTop: 10,
+},
+
 });
