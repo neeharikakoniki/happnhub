@@ -1,6 +1,11 @@
-// src/services/events/rsvpService.ts
+
 import firestore from '@react-native-firebase/firestore';
 import auth from '@react-native-firebase/auth';
+import {
+  getCachedRSVP,
+  setCachedRSVP,
+  removeCachedRSVP,
+} from '../../storage/mmkv';
 
 export const rsvpToEvent = async (eventId: string) => {
   const user = auth().currentUser;
@@ -16,6 +21,8 @@ export const rsvpToEvent = async (eventId: string) => {
       email: user.email,
       rsvpedAt: firestore.FieldValue.serverTimestamp(),
     });
+
+  setCachedRSVP(eventId, true);
 };
 
 export const cancelRsvp = async (eventId: string) => {
@@ -28,11 +35,18 @@ export const cancelRsvp = async (eventId: string) => {
     .collection('attendees')
     .doc(user.uid)
     .delete();
+
+  setCachedRSVP(eventId, false);
 };
 
 export const isUserRsvped = async (eventId: string): Promise<boolean> => {
   const user = auth().currentUser;
   if (!user) return false;
+
+ 
+  const cached = getCachedRSVP(eventId);
+  if (cached) return true;
+
 
   const doc = await firestore()
     .collection('events')
@@ -41,5 +55,8 @@ export const isUserRsvped = async (eventId: string): Promise<boolean> => {
     .doc(user.uid)
     .get();
 
-  return doc.exists();
+  const isRSVP = doc.exists;
+  if (isRSVP()) setCachedRSVP(eventId, true); 
+
+  return isRSVP();
 };

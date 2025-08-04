@@ -2,8 +2,10 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { useFavorites } from './FavoritesContext';
+import { RootState } from '../redux/store';
+import { addFavorite, removeFavorite } from '../redux/slices/favoritesSlice';
 import { rsvpToEvent, cancelRsvp, isUserRsvped } from '../services/events/rsvpService';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -12,8 +14,10 @@ type Props = NativeStackScreenProps<RootStackParamList, 'EventDetail'>;
 
 export default function EventDetailScreen({ route }: Props) {
   const { event, role } = route.params;
-  const { addFavorite, removeFavorite, favorites } = useFavorites();
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
+  const dispatch = useDispatch();
+  const favorites = useSelector((state: RootState) => state.favorites.favorites);
 
   const [isFavorite, setIsFavorite] = useState(false);
   const [countdown, setCountdown] = useState('');
@@ -57,10 +61,10 @@ export default function EventDetailScreen({ route }: Props) {
 
   const toggleFavorite = () => {
     if (isFavorite) {
-      removeFavorite(event.id);
+      dispatch(removeFavorite(event.id));
       Alert.alert('Removed from favorites');
     } else {
-      addFavorite(event);
+      dispatch(addFavorite(event));
       Alert.alert('Added to favorites');
     }
     setIsFavorite(!isFavorite);

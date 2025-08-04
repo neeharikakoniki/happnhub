@@ -1,18 +1,17 @@
-// src/screens/FavoritesScreen.tsx
+
 import React from 'react';
 import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/AppNavigator';
-import { useFavorites } from './FavoritesContext';
+import { useSelector } from 'react-redux';
+import { RootState } from '../redux/store';
 import EventCard from '../components/EventCard';
-import { useRoute } from '@react-navigation/native';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Favorites'>;
 
-export default function FavoritesScreen({ navigation }: Props) {
-  const { favorites } = useFavorites();
-  const route = useRoute();
-  const { role } = route.params as { role: 'admin' | 'user' };
+export default function FavoritesScreen({ navigation, route }: Props) {
+  const { role } = route.params;
+  const favorites = useSelector((state: RootState) => state.favorites.favorites);
 
   return (
     <View style={styles.container}>
@@ -25,7 +24,14 @@ export default function FavoritesScreen({ navigation }: Props) {
           data={favorites}
           keyExtractor={(item) => item.id}
           renderItem={({ item }) => (
-            <TouchableOpacity onPress={() => navigation.navigate('EventDetail', { event: item, role })}>
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('EventDetail', {
+                  event: item,
+                  role,
+                })
+              }
+            >
               <EventCard event={item} role={role} />
             </TouchableOpacity>
           )}

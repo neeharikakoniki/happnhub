@@ -146,7 +146,7 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
 
           <TouchableOpacity
             style={styles.favoritesButton}
-            onPress={() => navigation.navigate('Favorites')}
+            onPress={() => navigation.navigate('Favorites', { role })}
           >
             <Text style={styles.favoritesText}>Your Favorites</Text>
           </TouchableOpacity>
