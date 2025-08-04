@@ -14,4 +14,5 @@ export interface EventItem {
   isFavorited?: boolean;
   event_url?: string;
   tickets_url?: string;
+  headerImageUrl?: string;
 }

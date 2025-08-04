@@ -22,6 +22,7 @@ import { RootStackParamList } from '../navigation/AppNavigator';
 import EventCard from '../components/EventCard';
 import { fetchEvents } from '../api/eventsApi';
 import { EventItem } from '../types/EventItem';
+import { COLORS } from '../constants/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
@@ -92,9 +93,11 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
     <View style={styles.rootContainer}>
       <View style={styles.circleTopLeft} />
       <View style={styles.circleBottomRight} />
+      <View style={styles.circleMidLeft} />
+      <View style={styles.circleMidRight} />
 
       <TouchableOpacity
-        style={styles.logoutBtn}
+        style={styles.logoutButton}
         onPress={async () => {
           try {
             await auth().signOut();
@@ -104,7 +107,7 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
           }
         }}
       >
-        <Text style={styles.logoutText}>Logout</Text>
+         <Text style={styles.logoutButtonText}>Logout</Text>
       </TouchableOpacity>
 
       {showFullMap ? (
@@ -187,41 +190,64 @@ export default function HomeScreen({ route, navigation }: Props): React.JSX.Elem
     </View>
   );
 }
-
 const styles = StyleSheet.create({
   rootContainer: {
     flex: 1,
-    backgroundColor: '#FF6B6B',
+    backgroundColor: 'rgba(203, 157, 157, 0.05)',
   },
   circleTopLeft: {
     position: 'absolute',
-    top: -50,
-    left: -50,
+    top: -60,
+    left: -60,
     width: 200,
     height: 200,
     borderRadius: 100,
-    backgroundColor: 'rgba(255,255,255,0.15)',
+    backgroundColor: 'rgba(255, 107, 107, 0.05)',
     zIndex: 0,
   },
   circleBottomRight: {
     position: 'absolute',
-    bottom: -60,
+    bottom: -80,
     right: -60,
     width: 250,
     height: 250,
     borderRadius: 125,
-    backgroundColor: 'rgba(255,255,255,0.2)',
+    backgroundColor: 'rgba(255, 107, 107, 0.08)',
     zIndex: 0,
   },
-  logoutBtn: {
-    marginTop: 50,
-    alignSelf: 'flex-end',
-    paddingRight: 20,
+  circleMidLeft: {
+    position: 'absolute',
+    top: 150,
+    left: -30,
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: 'rgba(255, 107, 107, 0.04)',
+    zIndex: 0,
   },
-  logoutText: {
+  circleMidRight: {
+    position: 'absolute',
+    top: 300,
+    right: -40,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: 'rgba(255, 107, 107, 0.06)',
+    zIndex: 0,
+  },
+  logoutButton: {
+    alignSelf: 'flex-end',
+    marginTop: 50,
+    marginRight: 20,
+    backgroundColor: COLORS.primary,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+  },
+  logoutButtonText: {
     color: '#fff',
-    fontSize: 16,
-    textDecorationLine: 'underline',
+    fontWeight: '600',
+    fontSize: 14,
   },
   scrollContent: {
     padding: 20,
@@ -233,11 +259,11 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#fff',
+    color: COLORS.primary,
   },
   userRole: {
     fontSize: 16,
-    color: '#fff',
+    color: COLORS.primary,
     marginTop: 4,
   },
   miniMap: {
@@ -252,18 +278,18 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 20,
     fontWeight: '600',
-    color: '#fff',
+    color: COLORS.textPrimary,
     marginBottom: 10,
   },
   viewAllButton: {
     marginTop: 20,
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.primary,
     paddingVertical: 12,
     borderRadius: 10,
     alignItems: 'center',
   },
   viewAllText: {
-    color: '#FF6B6B',
+    color: '#fff',
     fontWeight: '700',
     fontSize: 16,
   },
@@ -271,13 +297,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 40,
     alignSelf: 'center',
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.primary,
     paddingVertical: 10,
     paddingHorizontal: 24,
     borderRadius: 10,
   },
   favoritesButton: {
-    backgroundColor: '#fff',
+    backgroundColor: COLORS.primary,
     paddingVertical: 10,
     paddingHorizontal: 18,
     borderRadius: 10,
@@ -285,13 +311,15 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   favoritesText: {
-    color: '#FF6B6B',
+    color: '#fff',
     fontWeight: '700',
     fontSize: 16,
   },
   buttonText: {
-    color: '#FF6B6B',
+    color: '#fff',
     fontWeight: 'bold',
     fontSize: 16,
   },
+
+
 });

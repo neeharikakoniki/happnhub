@@ -1,6 +1,14 @@
-// src/screens/EventDetailScreen.tsx
+
 import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Alert,
+  StyleSheet,
+  Linking,
+  ScrollView,
+} from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootStackParamList } from '../navigation/AppNavigator';
@@ -9,15 +17,13 @@ import { addFavorite, removeFavorite } from '../redux/slices/favoritesSlice';
 import { rsvpToEvent, cancelRsvp, isUserRsvped } from '../services/events/rsvpService';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { Linking } from 'react-native'; 
-
+import { COLORS } from '../constants/colors';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'EventDetail'>;
 
 export default function EventDetailScreen({ route }: Props) {
   const { event, role } = route.params;
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
-
   const dispatch = useDispatch();
   const favorites = useSelector((state: RootState) => state.favorites.favorites);
 
@@ -46,7 +52,7 @@ export default function EventDetailScreen({ route }: Props) {
 
   const updateCountdown = () => {
     const now = new Date();
-    const eventDate = new Date(event.startDate + 'T' + event.startTime);
+    const eventDate = new Date(`${event.startDate}T${event.startTime}`);
     const diff = eventDate.getTime() - now.getTime();
 
     if (diff <= 0) {
@@ -57,11 +63,10 @@ export default function EventDetailScreen({ route }: Props) {
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
     setCountdown(`${hours}h ${minutes}m ${seconds}s`);
   };
 
-  const toggleFavorite = () => {
+  const handleFavorite = () => {
     if (isFavorite) {
       dispatch(removeFavorite(event.id));
       Alert.alert('Removed from favorites');
@@ -72,7 +77,7 @@ export default function EventDetailScreen({ route }: Props) {
     setIsFavorite(!isFavorite);
   };
 
-  const toggleRSVP = async () => {
+  const handleRSVP = async () => {
     try {
       if (rsvped) {
         await cancelRsvp(event.id);
@@ -87,16 +92,18 @@ export default function EventDetailScreen({ route }: Props) {
     }
   };
 
+  const sharedButtonStyle = [styles.primaryButton];
+
   return (
-    <View style={styles.container}>
+    <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>{event.name}</Text>
 
       {role === 'admin' && (
         <TouchableOpacity
-          style={styles.adminButton}
+          style={sharedButtonStyle}
           onPress={() => navigation.navigate('AdminAttendees', { eventId: event.id })}
         >
-          <Text style={styles.adminButtonText}>View Attendees</Text>
+          <Text style={styles.buttonText}>View Attendees</Text>
         </TouchableOpacity>
       )}
 
@@ -115,168 +122,121 @@ export default function EventDetailScreen({ route }: Props) {
 
       <View style={styles.countdownContainer}>
         <Text style={styles.countdownLabel}>Countdown to event start:</Text>
-        <Text style={styles.countdown}>{countdown}</Text>
+        <View style={styles.countdownBox}>
+          <Text style={styles.countdown}>{countdown}</Text>
+        </View>
       </View>
 
-      <TouchableOpacity
-        style={[styles.favoriteButton, isFavorite && styles.favoriteActive]}
-        onPress={toggleFavorite}
-      >
-        <Text style={styles.favoriteButtonText}>
+      <TouchableOpacity style={sharedButtonStyle} onPress={handleFavorite}>
+        <Text style={styles.buttonText}>
           {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
         </Text>
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.rsvpButton, rsvped && styles.rsvpActive]}
-        onPress={toggleRSVP}
-      >
-        <Text style={styles.rsvpText}>
+      <TouchableOpacity style={sharedButtonStyle} onPress={handleRSVP}>
+        <Text style={styles.buttonText}>
           {rsvped ? 'Cancel RSVP' : 'RSVP to Event'}
         </Text>
       </TouchableOpacity>
 
       <TouchableOpacity
-        style={styles.chatButton}
+        style={sharedButtonStyle}
         onPress={() => navigation.navigate('Chat', { eventId: event.id })}
       >
-        <Text style={styles.chatButtonText}>Chat with Attendees</Text>
+        <Text style={styles.buttonText}>Chat with Attendees</Text>
       </TouchableOpacity>
-      {event.event_url && (
-  <TouchableOpacity
-    style={[styles.chatButton, { marginTop: 10 }]}
-    onPress={() => Linking.openURL(event.event_url!)}
-  >
-    <Text style={styles.chatButtonText}>Visit Event Page</Text>
-  </TouchableOpacity>
-)}
 
-{event.tickets_url && (
-  <TouchableOpacity
-    style={[styles.chatButton, { marginTop: 10, backgroundColor: '#4CAF50' }]}
-    onPress={() => Linking.openURL(event.tickets_url!)}
-  >
-    <Text style={styles.chatButtonText}>Buy Tickets</Text>
-  </TouchableOpacity>
-)}
+      {typeof event.event_url === 'string' && (
+        <TouchableOpacity
+          style={sharedButtonStyle}
+          onPress={() => Linking.openURL(event.event_url!)}
+        >
+          <Text style={styles.buttonText}>Visit Event Page</Text>
+        </TouchableOpacity>
+      )}
 
-    </View>
+      {typeof event.tickets_url === 'string' && (
+        <TouchableOpacity
+          style={sharedButtonStyle}
+          onPress={() => Linking.openURL(event.tickets_url!)}
+        >
+          <Text style={styles.buttonText}>Buy Tickets</Text>
+        </TouchableOpacity>
+      )}
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    backgroundColor: '#FF6B6B',
     padding: 20,
+    backgroundColor: '#fef9f8', 
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 10,
+    color: COLORS.primary, 
+    marginBottom: 16,
   },
   address: {
-    color: '#fff',
-    marginBottom: 15,
+    fontSize: 14,
+    color: '#444',
+    marginBottom: 6,
   },
   summary: {
-    color: '#fff',
     fontSize: 16,
-    marginBottom: 20,
+    color: '#555',
+    marginBottom: 12,
   },
   infoRow: {
     flexDirection: 'row',
-    marginBottom: 8,
+    marginBottom: 6,
   },
   infoLabel: {
-    color: '#eee',
     fontWeight: '600',
+    color: '#666',
     marginRight: 8,
   },
   infoValue: {
-    color: '#fff',
+    color: '#333',
   },
   countdownContainer: {
-    marginVertical: 20,
+    marginVertical: 16,
     alignItems: 'center',
   },
   countdownLabel: {
-    color: '#fff',
+    color: '#777',
     fontWeight: '600',
-    marginBottom: 5,
+    marginBottom: 6,
+  },
+  countdownBox: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    elevation: 3,
   },
   countdown: {
-    fontSize: 22,
-    color: '#fff',
+    fontSize: 20,
+    color: '#e53935', 
     fontWeight: 'bold',
   },
-  favoriteButton: {
-    backgroundColor: '#fff',
+  primaryButton: {
+    backgroundColor: COLORS.primary, 
     paddingVertical: 14,
     borderRadius: 12,
-    marginBottom: 15,
+    marginBottom: 12,
     alignItems: 'center',
+    shadowColor: '#000', 
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
-  favoriteActive: {
-    backgroundColor: '#FFA07A',
-  },
-  favoriteButtonText: {
-    color: '#FF6B6B',
+  buttonText: {
+    color: '#fff', 
     fontWeight: '700',
     fontSize: 16,
   },
-  rsvpButton: {
-    backgroundColor: '#fff',
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginBottom: 15,
-    alignItems: 'center',
-  },
-  rsvpActive: {
-    backgroundColor: '#FFD700',
-  },
-  rsvpText: {
-    color: '#333',
-    fontWeight: '700',
-    fontSize: 16,
-  },
-  chatButton: {
-    backgroundColor: '#1976D2',
-    paddingVertical: 14,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  chatButtonText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 16,
-  },
-  adminButton: {
-    backgroundColor: '#fff',
-    paddingVertical: 14,
-    borderRadius: 12,
-    marginBottom: 15,
-    alignItems: 'center',
-  },
-  adminButtonText: {
-    color: '#1976D2',
-    fontWeight: '700',
-    fontSize: 16,
-  },
-  ticketButton: {
-  backgroundColor: '#4CAF50',
-  paddingVertical: 14,
-  borderRadius: 12,
-  alignItems: 'center',
-  marginTop: 10,
-},
-eventPageButton: {
-  backgroundColor: '#1976D2',
-  paddingVertical: 14,
-  borderRadius: 12,
-  alignItems: 'center',
-  marginTop: 10,
-},
-
 });
+
