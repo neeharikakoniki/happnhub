@@ -1,4 +1,4 @@
-// src/components/EventCard.tsx
+
 import React from 'react';
 import { EventItem } from '../api/eventsApi';
 import { useNavigation } from '@react-navigation/native';

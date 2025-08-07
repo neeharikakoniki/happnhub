@@ -28,7 +28,7 @@ export default function EventListScreen({ navigation, route }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* Decorative Circles */}
+   
       <View style={styles.circleTopLeft} />
       <View style={styles.circleBottomRight} />
       <View style={styles.circleMidLeft} />
@@ -67,7 +67,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Decorative Circles
+  
   circleTopLeft: {
     position: 'absolute',
     top: -60,

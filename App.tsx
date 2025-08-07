@@ -1,4 +1,4 @@
-// App.tsx
+
 import React, { useEffect } from 'react';
 import { StatusBar, Alert, Platform } from 'react-native';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
@@ -54,10 +54,10 @@ export default function App() {
             },
             { merge: true }
           );
-        console.log('✅ FCM token saved to Firestore for user:', user.uid);
+        console.log('FCM token saved to Firestore for user:', user.uid);
       }
     } catch (err) {
-      console.error('❌ Failed to get or save FCM token:', err);
+      console.error('Failed to get or save FCM token:', err);
     }
   };
 
@@ -80,8 +80,8 @@ export default function App() {
       .getInitialNotification()
       .then(remoteMessage => {
         if (remoteMessage) {
-          console.log('🚀 App opened from notification:', remoteMessage);
-          // Optionally: Navigate to screen or handle data
+          console.log('App opened from notification:', remoteMessage);
+         
         }
       });
 

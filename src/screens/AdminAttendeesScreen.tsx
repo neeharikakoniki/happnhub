@@ -1,4 +1,4 @@
-// src/screens/AdminAttendeesScreen.tsx
+
 import React, { useEffect, useState } from 'react';
 import { View, Text, FlatList, StyleSheet, ActivityIndicator } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';

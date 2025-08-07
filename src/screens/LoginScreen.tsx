@@ -48,7 +48,7 @@ export default function LoginScreen({ navigation }: Props) {
 
   return (
     <View style={styles.container}>
-      {/* Decorative Circles */}
+      
       <View style={styles.circleTopLeft} />
       <View style={styles.circleBottomRight} />
 
